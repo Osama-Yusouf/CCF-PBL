@@ -1,0 +1,16 @@
+{
+  "name": "aegis-soc-dashboard",
+  "version": "1.0.0",
+  "description": "Full working AI-Powered SOC Dashboard with Express and WebSockets",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="AEGIS SOC - Next Generation AI-Powered Security Operations Center Dashboard. Real-time cognitive defense, proactive threat mitigation, and automated threat hunting."/>
+    <title>AEGIS COGNITIVE - AI-Powered SOC Dashboard</title>
+    <!-- Tailwind CSS with Forms & Container Queries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- Material Symbols Outlined -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"/>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"/>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+        <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#09090b",
+                        "surface": "#18181b",
+                        "surface-container": "#18181b",
+                        "surface-container-low": "#18181b",
+                        "surface-container-high": "#27272a",
+                        "surface-container-highest": "#27272a",
+                        "primary": "#3b82f6",
+                        "primary-container": "#1d4ed8",
+                        "primary-fixed-dim": "#60a5fa",
+                        "secondary": "#71717a",
+                        "secondary-container": "#3f3f46",
+                        "secondary-fixed-dim": "#a1a1aa",
+                        "tertiary-container": "#059669",
+                        "tertiary-fixed-dim": "#10b981",
+                        "on-surface": "#fafafa",
+                        "on-surface-variant": "#a1a1aa",
+                        "outline": "#3f3f46",
+                        "outline-variant": "#27272a",
+                        "error": "#ef4444",
+                        "error-container": "#991b1b"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-background text-on-surface font-sans overflow-x-hidden min-h-screen">
+
+    <!-- Background WebGL Shader Animation -->
+    <div class="fixed inset-0 z-0 pointer-events-none bg-background"></div>
+
+    <!-- Top Navigation Header -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-surface-container-highest/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_0_20px_rgba(0,220,230,0.15)]">
+        <div class="flex items-center gap-4">
+            <div class="logo-icon text-primary-fixed-dim text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="font-extrabold text-lg tracking-tighter text-primary-fixed-dim ">AEGIS COGNITIVE</span>
+                <span class="text-[10px] font-mono text-on-surface-variant tracking-wider uppercase">AI-Powered SOC Autopilot</span>
+            </div>
+            <div class="hidden md:flex items-center gap-2 bg-surface-variant/50 px-3 py-1 rounded border border-outline-variant/50 ml-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+                <span class="font-mono text-xs text-tertiary-fixed-dim font-bold">Autopilot Active</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <button class="header-btn btn-report" onclick="openAuditReportModal()">
+                    <i class="fa-solid fa-file-pdf"></i> Export Report
+                </button>
+                <button class="header-btn btn-sfx" id="sfx-toggle-btn" onclick="toggleAudioSFX()">
+                    <i class="fa-solid fa-volume-high"></i> SFX: ON
+                </button>
+                <button class="header-btn btn-simulator" onclick="openSimulatorModal()">
+                    <i class="fa-solid fa-crosshairs"></i> Attack Simulator
+                </button>
+                <button class="header-btn btn-reset" onclick="resetSocState()">
+                    <i class="fa-solid fa-rotate-left"></i> Reset SOC
+                </button>
+            </div>
+            <div class="font-mono text-xs text-on-surface-variant hidden xl:block" id="system-time">UTC: 2026-08-05 08:52:14</div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="relative z-20 pt-24 px-6 md:px-10 pb-10 min-h-screen flex flex-col gap-6 max-w-[1800px] mx-auto">
+
+        <!-- AI Autopilot Proactive Recommendation Banner -->
+        <section class="glass-panel border-secondary-container/50 bg-secondary-container/10 p-4 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(125,1,177,0.2)]" id="autopilot-banner">
+            <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-secondary-fixed-dim text-3xl shrink-0" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                <div>
+                    <h3 class="font-mono text-xs text-secondary-fixed-dim font-bold tracking-widest uppercase">AI AUTOPILOT RECOMMENDATION</h3>
+                    <p class="text-sm text-on-surface/90">
+                        AI detected anomalous credential dumping behavior from <span id="autopilot-ip" class="font-mono font-bold text-error">10.142.45.189</span> on Node <span id="autopilot-node" class="font-mono font-bold text-primary-fixed-dim">DB-PROD-01</span>. Criticality: <strong style="color: var(--color-critical)">9.8 Critical</strong>.
+                    </p>
+                </div>
+            </div>
+            <button class="bg-secondary-container text-on-secondary-container font-mono text-xs font-bold px-4 py-2 rounded border border-secondary-fixed-dim/40 hover:bg-secondary-container/80 transition-all shrink-0 shadow-[0_0_10px_rgba(191,90,242,0.3)]" id="btn-deploy-autopilot" onclick="triggerAutopilotPlaybook()">
+                <i class="fa-solid fa-bolt mr-1"></i> Deploy AI Playbook
+            </button>
+        </section>
+
+        <!-- Top KPI Metrics Row (4 Cards) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Metric 1: Threat Index -->
+            <div class="glass-panel p-5 rounded-lg flex flex-col justify-between gap-2 relative overflow-hidden group">
+                <div class="flex justify-between items-center">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider">Active Threat Index</span>
+                    <i class="fa-solid fa-gauge-high text-error text-sm"></i>
+                </div>
+                <div class="text-3xl font-extrabold text-error  font-mono" id="metric-threat-level">42.8%</div>
+                <div class="w-full bg-surface-container-high h-1.5 mt-2 rounded-full overflow-hidden">
+                    <div class="bg-error h-full w-[42.8%] shadow-[0_0_10px_rgba(255,180,171,0.6)]" id="metric-threat-bar"></div>
+                </div>
+            </div>
+
+            <!-- Metric 2: Active Incidents -->
+            <div class="glass-panel p-5 rounded-lg flex flex-col justify-between gap-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider">Active Incidents</span>
+                    <i class="fa-solid fa-triangle-exclamation text-primary-fixed-dim text-sm"></i>
+                </div>
+                <div class="text-3xl font-extrabold text-on-surface font-mono" id="metric-active-alerts">0</div>
+                <div class="font-mono text-xs text-primary-fixed-dim" id="metric-active-subtext">
+                    <i class="fa-solid fa-circle-exclamation text-error"></i> 0 Critical Alerts
+                </div>
+            </div>
+
+            <!-- Metric 3: Network Flow -->
+            <div class="glass-panel p-5 rounded-lg flex flex-col justify-between gap-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider">Global Network Ingress</span>
+                    <i class="fa-solid fa-network-wired text-primary-fixed-dim text-sm"></i>
+                </div>
+                <div class="text-3xl font-extrabold text-on-surface font-mono" id="metric-ingress">4.82 GB/s</div>
+                <div class="font-mono text-xs text-tertiary-fixed-dim" id="metric-ingress-subtext">
+                    <i class="fa-solid fa-caret-up"></i> +8.2% normal flow
+                </div>
+            </div>
+
+            <!-- Metric 4: AI Mitigation Rate -->
+            <div class="glass-panel p-5 rounded-lg flex flex-col justify-between gap-2">
+                <div class="flex justify-between items-center">
+                    <span class="font-mono text-xs text-on-surface-variant uppercase tracking-wider">AI Mitigation Rate</span>
+                    <i class="fa-solid fa-robot text-tertiary-fixed-dim text-sm"></i>
+                </div>
+                <div class="text-3xl font-extrabold text-tertiary-fixed-dim  font-mono" id="metric-mitigation">94.2%</div>
+                <div class="w-full bg-surface-container-high h-1.5 mt-2 rounded-full overflow-hidden">
+                    <div class="bg-tertiary-fixed-dim h-full w-[94.2%] shadow-[0_0_10px_rgba(71,226,102,0.6)]" id="metric-mitigation-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Middle Section: Interactive Map & Incidents Feed -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[480px]">
+            <!-- Left (65%): Attack Surface Canvas Map -->
+            <div class="lg:col-span-8 glass-panel rounded-lg border-outline-variant/30 flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-highest/50">
+                    <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                        <i class="fa-solid fa-globe mr-1.5"></i> Real-time Cyber Attack Surface Simulator
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                        <span class="font-mono text-[11px] text-on-surface-variant">Telemetry Tunnel Active</span>
+                    </div>
+                </div>
+
+                <div class="cyber-canvas-container flex-1 relative bg-[#060911]/80 min-h-[360px]">
+                    <div class="map-overlay">
+                        <div class="map-overlay-title">GLOBAL HONEYPOT MONITOR</div>
+                        <div>Packets: <span id="packet-counter" class="font-mono font-bold text-primary-fixed-dim">312,940</span> pkts/s</div>
+                    </div>
+                    <canvas id="threat-map-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Right (35%): Active Incidents Queue -->
+            <div class="lg:col-span-4 glass-panel rounded-lg border-outline-variant/30 flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-highest/50">
+                    <span class="font-mono text-xs text-on-surface uppercase tracking-widest font-bold">
+                        <i class="fa-solid fa-bell mr-1.5 text-error"></i> Active Incidents
+                    </span>
+                    <div class="panel-actions flex gap-1">
+                        <button class="panel-btn active" onclick="filterAlerts('all', this)">All</button>
+                        <button class="panel-btn" onclick="filterAlerts('critical', this)">Critical</button>
+                        <button class="panel-btn" onclick="filterAlerts('high', this)">High</button>
+                    </div>
+                </div>
+
+                <!-- Threat Hunting Search Input Bar -->
+                <div class="px-3 py-2 border-b border-outline-variant/30 bg-surface-container-highest/20 flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass text-xs text-on-surface-variant"></i>
+                    <input type="text" id="threat-search-input" class="bg-transparent text-xs text-on-surface w-full focus:outline-none font-mono" placeholder="Filter by IP, host, signature..." oninput="handleThreatSearchInput(event)">
+                </div>
+
+                <div class="alert-feed-list p-3 flex-1 overflow-y-auto" id="alert-feed-list">
+                    <div class="text-center py-10 text-on-surface-variant">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-xs font-mono">Initiating Incident Feed Tunnel...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Infrastructure Host Nodes Grid -->
+        <section class="glass-panel p-5 rounded-lg border-outline-variant/30 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-outline-variant/30 pb-3">
+                <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                    <i class="fa-solid fa-server mr-1.5"></i> Infrastructure & Network Nodes Telemetry
+                </span>
+                <span class="font-mono text-xs text-on-surface-variant">6 Active Subnets Monitored</span>
+            </div>
+
+            <div class="threat-grid" id="network-nodes-grid">
+                <!-- Populated dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- Analytics Charts Row -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-5 rounded-lg border-outline-variant/30 flex flex-col gap-3">
+                <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                    <i class="fa-solid fa-chart-pie mr-1.5"></i> Incident Category Distribution
+                </span>
+                <div class="h-[220px] relative">
+                    <canvas id="vectorChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-lg border-outline-variant/30 flex flex-col gap-3">
+                <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i> Incoming Threats vs Mitigated Rate
+                </span>
+                <div class="h-[220px] relative">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Row: AI Copilot, Terminal Stream, Playbook Audit -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left (40%): Aegis AI Security Copilot Chat Console -->
+            <div class="lg:col-span-5 glass-panel rounded-lg border-outline-variant/30 flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-outline-variant/30 bg-surface-container-highest/50 flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-secondary-fixed-dim"></i>
+                    <span class="font-mono text-xs text-secondary-fixed-dim uppercase tracking-widest font-bold">Aegis AI Security Copilot</span>
+                </div>
+
+                <div class="p-4 flex flex-col flex-1 gap-3">
+                    <div class="ai-chat-history flex-1" id="chat-history">
+                        <div class="chat-bubble ai">
+                            Greetings, Operator. I am Aegis AI, connected to the active SOC backend stream. Ask a query or select a playbook prompt below.
+                        </div>
+                    </div>
+
+                    <div class="suggested-prompts-container">
+                        <button class="prompt-chip" onclick="askCopilot('Analyze DB-PROD-01 anomalous behavior')">Analyze DB-PROD-01</button>
+                        <button class="prompt-chip" onclick="askCopilot('Summarize active threats')">Summarize Threats</button>
+                        <button class="prompt-chip" onclick="askCopilot('Show Firewall defense recommendations')">Show firewall guidelines</button>
+                    </div>
+
+                    <form class="chat-input-row" onsubmit="handleChatSubmit(event)">
+                        <input type="text" class="chat-input-box" id="chat-input" placeholder="Query threat context, verify CVEs..." autocomplete="off"/>
+                        <button type="submit" class="chat-send-btn">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right (70%): Real-time Cyber Audit Terminal Stream -->
+            <div class="lg:col-span-7 glass-panel rounded-lg border-outline-variant/30 flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-outline-variant/30 bg-surface-container-highest/50 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5 mr-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-error inline-block"></span>
+                            <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#ff9f0a;"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim inline-block"></span>
+                        </div>
+                        <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                            <i class="fa-solid fa-terminal mr-1.5"></i> REAL-TIME SOC FIREWALL & SECURITY AUDIT TERMINAL STREAM
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-[10px] bg-primary-fixed-dim/10 text-primary-fixed-dim px-2 py-0.5 rounded border border-primary-fixed-dim/30 hidden sm:inline-block">eth0: SOC-GW</span>
+                        <button class="panel-btn text-[11px]" onclick="clearTerminalLogs()"><i class="fa-solid fa-trash-can"></i> Clear Terminal</button>
+                    </div>
+                </div>
+
+                <div class="p-3 flex-1 flex flex-col min-h-[300px]">
+                    <div class="terminal-log-box flex-1 w-full" id="terminal-log-box">
+                        <div class="terminal-line system"><span class="timestamp">[SYSTEM]</span> Aegis Real-Time Cyber Audit Tunnel Connected. Listening for raw event stream...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Autopilot Defense Playbook Audit Trail Table -->
+        <section class="glass-panel p-5 rounded-lg border-outline-variant/30 flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-outline-variant/30 pb-3">
+                <span class="font-mono text-xs text-primary-fixed-dim uppercase tracking-widest font-bold">
+                    <i class="fa-solid fa-list-check mr-1.5"></i> Autopilot Defense Playbook Audit Trail
+                </span>
+            </div>
+
+            <div class="cyber-table-container">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th>Mitigation ID</th>
+                            <th>Target Host</th>
+                            <th>Incident Description</th>
+                            <th>Trigger Source</th>
+                            <th>Defense Actions Taken</th>
+                            <th>Autopilot Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playbook-audit-trail-body">
+                        <!-- Filled by app.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Incident Detail & AI Mitigation Panel Modal -->
+    <div class="modal-overlay" id="incident-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Incident Analysis Details</h3>
+                <button class="modal-close" onclick="closeIncidentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info-grid">
+                    <div class="info-item">
+                        <label>Incident ID</label>
+                        <span id="modal-id" class="mono">INC-9042</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Severity Score</label>
+                        <span id="modal-severity">9.2 CRITICAL</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Source IP Address</label>
+                        <span id="modal-source-ip" class="mono">198.51.100.89</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Target Infrastructure</label>
+                        <span id="modal-target" class="mono">VM-PAYMENTS-03</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">System Payload Log</label>
+                    <pre style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.725rem; overflow-x: auto; color: #a1b0cb;" id="modal-log-payload">
+POST /api/v1/checkout HTTP/1.1
+Host: secure-pay.internal.local
+User-Agent: sqlmap/1.4.12#stable (http://sqlmap.org)
+Accept: */*
+Content-Length: 104
+
+id=5' OR 1=1; DROP TABLE Transactions; --&verify=true
+                    </pre>
+                </div>
+
+                <div class="ai-recommendation-box">
+                    <h4><i class="fa-solid fa-robot"></i> AEGIS Cognitive Insight</h4>
+                    <p id="modal-ai-recommendation">Mitigation playbook auto-suggests immediate termination of connection. Deploying a WAF filtering rule on router PAY-RT-02 for SQL Injection patterns is highly recommended.</p>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeIncidentModal()">Close</button>
+                    <button class="modal-btn modal-btn-primary" id="modal-action-mitigate" onclick="mitigateIncidentFromModal()">Mitigate Incident</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Practical Attack Simulator Modal -->
+    <div class="modal-overlay" id="simulator-modal">
+        <div class="modal-content simulator-modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-crosshairs" style="color: var(--color-critical)"></i> Interactive Cyber Attack Simulator</h3>
+                <button class="modal-close" onclick="closeSimulatorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Launch targeted cyber incident vectors to test SOC detection, trigger visual network threat arcs, and demonstrate real-time mitigation playbooks live.
+                </p>
+
+                <!-- Auto-Simulation Speed Controls -->
+                <div class="sim-speed-box">
+                    <label><i class="fa-solid fa-gauge-simple-high"></i> Auto-Attack Generator Mode:</label>
+                    <div class="sim-mode-buttons">
+                        <button class="sim-mode-btn" id="sim-mode-fast" onclick="setSimulationMode('fast')">Fast (5s)</button>
+                        <button class="sim-mode-btn active" id="sim-mode-normal" onclick="setSimulationMode('normal')">Normal (12s)</button>
+                        <button class="sim-mode-btn" id="sim-mode-paused" onclick="setSimulationMode('paused')">Pause Auto</button>
+                    </div>
+                </div>
+
+                <!-- Attack Presets Grid -->
+                <label class="sim-section-label">Select Attack Vector Preset:</label>
+                <div class="sim-preset-grid">
+                    <div class="sim-preset-card active" onclick="selectAttackPreset('sql', this)">
+                        <i class="fa-solid fa-database"></i>
+                        <div class="title">SQL Injection</div>
+                        <div class="desc">Database table dump attempt</div>
+                    </div>
+                    <div class="sim-preset-card" onclick="selectAttackPreset('ddos', this)">
+                        <i class="fa-solid fa-burst"></i>
+                        <div class="title">DDoS Reflection</div>
+                        <div class="desc">140,000 UDP req/sec flood</div>
+                    </div>
+                    <div class="sim-preset-card" onclick="selectAttackPreset('ssh', this)">
+                        <i class="fa-solid fa-key"></i>
+                        <div class="title">SSH Brute Force</div>
+                        <div class="desc">Root auth dictionary sweep</div>
+                    </div>
+                    <div class="sim-preset-card" onclick="selectAttackPreset('webshell', this)">
+                        <i class="fa-solid fa-file-code"></i>
+                        <div class="title">Webshell Upload</div>
+                        <div class="desc">RCE payload profile.php</div>
+                    </div>
+                    <div class="sim-preset-card" onclick="selectAttackPreset('dns', this)">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <div class="title">DNS Tunnel Exfil</div>
+                        <div class="desc">Covert DNS TXT data leak</div>
+                    </div>
+                    <div class="sim-preset-card" onclick="selectAttackPreset('privesc', this)">
+                        <i class="fa-solid fa-user-ninja"></i>
+                        <div class="title">Privilege Escalation</div>
+                        <div class="desc">DirtyCow kernel exploit</div>
+                    </div>
+                </div>
+
+                <!-- Custom Parameters Form -->
+                <div class="sim-form-grid">
+                    <div class="sim-field">
+                        <label>Target Host Node</label>
+                        <select id="sim-target-node" class="sim-input">
+                            <option value="DB-PROD-01">DB-PROD-01 (10.142.45.189)</option>
+                            <option value="API-GATEWAY">API-GATEWAY (10.142.0.10)</option>
+                            <option value="VM-PAYMENTS-03">VM-PAYMENTS-03 (10.142.90.4)</option>
+                            <option value="AUTH-SERVICE">AUTH-SERVICE (10.142.45.12)</option>
+                            <option value="WEB-CLUSTER-01">WEB-CLUSTER-01 (10.142.45.101)</option>
+                            <option value="DEV-STAGE-01">DEV-STAGE-01 (10.142.45.92)</option>
+                        </select>
+                    </div>
+
+                    <div class="sim-field">
+                        <label>Attacker IP Address</label>
+                        <input type="text" id="sim-source-ip" class="sim-input" placeholder="Random IP (e.g. 198.51.100.89)">
+                    </div>
+
+                    <div class="sim-field">
+                        <label>Severity Level</label>
+                        <select id="sim-severity" class="sim-input">
+                            <option value="critical">Critical (Score 9.5)</option>
+                            <option value="high" selected>High (Score 8.2)</option>
+                            <option value="medium">Medium (Score 6.0)</option>
+                            <option value="low">Low (Score 3.5)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="margin-top: 1.5rem">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeSimulatorModal()">Close</button>
+                    <button class="modal-btn btn-launch-attack" onclick="executeManualAttackLaunch()">
+                        <i class="fa-solid fa-bolt"></i> LAUNCH SIMULATED ATTACK NOW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Security Audit Report Modal -->
+    <div class="modal-overlay" id="report-modal">
+        <div class="modal-content max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="modal-header flex justify-between items-center border-b border-outline-variant/30 pb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract text-primary-fixed-dim text-xl"></i>
+                    <div>
+                        <h2 class="font-mono text-sm font-bold text-on-surface uppercase tracking-wider">AEGIS SOC EXECUTIVE SECURITY AUDIT REPORT</h2>
+                        <p class="text-[11px] text-on-surface-variant font-mono">Confidential System Telemetry & Cyber Incident Summary</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeAuditReportModal()">&times;</button>
+            </div>
+
+            <div class="modal-body p-6 flex flex-col gap-6" id="report-modal-body">
+                <!-- Populated dynamically by app.js -->
+            </div>
+
+            <div class="modal-footer p-4 border-t border-outline-variant/30 flex justify-between items-center bg-surface-container-highest/30">
+                <div class="text-[11px] font-mono text-on-surface-variant">
+                    Generated by AEGIS Cognitive SOC Engine
+                </div>
+                <div class="flex gap-2">
+                    <button class="modal-btn modal-btn-secondary" onclick="closeAuditReportModal()">Close</button>
+                    <button class="modal-btn btn-report" onclick="window.print()">
+                        <i class="fa-solid fa-print"></i> Print / Save PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
